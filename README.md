@@ -281,6 +281,3 @@ Contributions are welcome! Here's how you can contribute:
 
 Please ensure your code passes linting and includes appropriate tests.
 
-## License
-
-This project is licensed under the ISC License.

@@ -1,0 +1,38 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - AZURE_DEVOPS_ORG_URL
+      - AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN
+      - AZURE_DEVOPS_PROJECT
+    properties:
+      AZURE_DEVOPS_ORG_URL:
+        type: string
+        default: https://dev.azure.com/your-organization
+        description: URL of your Azure DevOps organization
+      AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN:
+        type: string
+        description: Your personal access token for Azure DevOps
+      AZURE_DEVOPS_PROJECT:
+        type: string
+        description: Default Azure DevOps project to use
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'npm',
+      args: ['run', 'start'],
+      env: {
+        AZURE_DEVOPS_ORG_URL: config.AZURE_DEVOPS_ORG_URL,
+        AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN: config.AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN,
+        AZURE_DEVOPS_PROJECT: config.AZURE_DEVOPS_PROJECT
+      }
+    })
+  exampleConfig:
+    AZURE_DEVOPS_ORG_URL: https://dev.azure.com/dummy-org
+    AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN: dummy-token-123456
+    AZURE_DEVOPS_PROJECT: DummyProject

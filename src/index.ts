@@ -5,6 +5,7 @@ import { WorkItemTools } from './Tools/WorkItemTools';
 import { BoardsSprintsTools } from './Tools/BoardsSprintsTools';
 import { ProjectTools } from './Tools/ProjectTools';
 import { GitTools } from './Tools/GitTools';
+import { TestingCapabilitiesTools } from './Tools/TestingCapabilitiesTools';
 import { z } from 'zod';
 
 async function main() {
@@ -21,6 +22,7 @@ async function main() {
     const boardsSprintsTools = new BoardsSprintsTools(azureDevOpsConfig);
     const projectTools = new ProjectTools(azureDevOpsConfig);
     const gitTools = new GitTools(azureDevOpsConfig);
+    const testingCapabilitiesTools = new TestingCapabilitiesTools(azureDevOpsConfig);
     
     console.log('Initialized tools');
 
@@ -789,6 +791,239 @@ async function main() {
       },
       async (params, extra) => {
         const result = await gitTools.mergePullRequest(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    // Register Testing Capabilities Tools
+    server.tool("runAutomatedTests", 
+      "Execute automated test suites",
+      {
+        testSuiteId: z.number().optional().describe("ID of the test suite to run"),
+        testPlanId: z.number().optional().describe("ID of the test plan to run"),
+        testEnvironment: z.string().optional().describe("Environment to run tests in"),
+        parallelExecution: z.boolean().optional().describe("Whether to run tests in parallel")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.runAutomatedTests(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getTestAutomationStatus", 
+      "Check status of automated test execution",
+      {
+        testRunId: z.number().describe("ID of the test run to check status for")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.getTestAutomationStatus(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("configureTestAgents", 
+      "Configure and manage test agents",
+      {
+        agentName: z.string().describe("Name of the test agent to configure"),
+        capabilities: z.record(z.any()).optional().describe("Capabilities to set for the agent"),
+        enabled: z.boolean().optional().describe("Whether the agent should be enabled")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.configureTestAgents(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("createTestDataGenerator", 
+      "Generate test data for automated tests",
+      {
+        name: z.string().describe("Name of the test data generator"),
+        dataSchema: z.record(z.any()).describe("Schema for the test data to generate"),
+        recordCount: z.number().optional().describe("Number of records to generate")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.createTestDataGenerator(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("manageTestEnvironments", 
+      "Manage test environments for different test types",
+      {
+        environmentName: z.string().describe("Name of the test environment"),
+        action: z.enum(['create', 'update', 'delete']).describe("Action to perform"),
+        properties: z.record(z.any()).optional().describe("Properties for the environment")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.manageTestEnvironments(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getTestFlakiness", 
+      "Analyze and report on test flakiness",
+      {
+        testId: z.number().optional().describe("ID of a specific test to analyze"),
+        testRunIds: z.array(z.number()).optional().describe("Specific test runs to analyze"),
+        timeRange: z.string().optional().describe("Time range for analysis (e.g., '30d')")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.getTestFlakiness(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getTestGapAnalysis", 
+      "Identify gaps in test coverage",
+      {
+        areaPath: z.string().optional().describe("Area path to analyze"),
+        codeChangesOnly: z.boolean().optional().describe("Only analyze recent code changes")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.getTestGapAnalysis(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("runTestImpactAnalysis", 
+      "Determine which tests to run based on code changes",
+      {
+        buildId: z.number().describe("ID of the build to analyze"),
+        changedFiles: z.array(z.string()).optional().describe("List of changed files")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.runTestImpactAnalysis(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getTestHealthDashboard", 
+      "View overall test health metrics",
+      {
+        timeRange: z.string().optional().describe("Time range for metrics (e.g., '90d')"),
+        includeTrends: z.boolean().optional().describe("Include trend data")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.getTestHealthDashboard(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("runTestOptimization", 
+      "Optimize test suite execution for faster feedback",
+      {
+        testPlanId: z.number().describe("ID of the test plan to optimize"),
+        optimizationGoal: z.enum(['time', 'coverage', 'reliability']).describe("Optimization goal")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.runTestOptimization(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("createExploratorySessions", 
+      "Create new exploratory testing sessions",
+      {
+        title: z.string().describe("Title of the exploratory session"),
+        description: z.string().optional().describe("Description of the session"),
+        areaPath: z.string().optional().describe("Area path for the session")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.createExploratorySessions(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("recordExploratoryTestResults", 
+      "Record findings during exploratory testing",
+      {
+        sessionId: z.number().describe("ID of the exploratory session"),
+        findings: z.array(z.string()).describe("List of findings to record"),
+        attachments: z.array(z.any()).optional().describe("Attachments for the findings")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.recordExploratoryTestResults(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("convertFindingsToWorkItems", 
+      "Convert exploratory test findings to work items",
+      {
+        sessionId: z.number().describe("ID of the exploratory session"),
+        findingIds: z.array(z.number()).describe("IDs of findings to convert"),
+        workItemType: z.string().optional().describe("Type of work item to create")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.convertFindingsToWorkItems(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getExploratoryTestStatistics", 
+      "Get statistics on exploratory testing activities",
+      {
+        timeRange: z.string().optional().describe("Time range for statistics (e.g., '90d')"),
+        userId: z.string().optional().describe("Filter by specific user")
+      },
+      async (params, extra) => {
+        const result = await testingCapabilitiesTools.getExploratoryTestStatistics(params);
         return {
           content: result.content,
           rawData: result.rawData,

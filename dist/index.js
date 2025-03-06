@@ -7,6 +7,7 @@ const WorkItemTools_1 = require("./Tools/WorkItemTools");
 const BoardsSprintsTools_1 = require("./Tools/BoardsSprintsTools");
 const ProjectTools_1 = require("./Tools/ProjectTools");
 const GitTools_1 = require("./Tools/GitTools");
+const TestingCapabilitiesTools_1 = require("./Tools/TestingCapabilitiesTools");
 const zod_1 = require("zod");
 async function main() {
     try {
@@ -20,6 +21,7 @@ async function main() {
         const boardsSprintsTools = new BoardsSprintsTools_1.BoardsSprintsTools(azureDevOpsConfig);
         const projectTools = new ProjectTools_1.ProjectTools(azureDevOpsConfig);
         const gitTools = new GitTools_1.GitTools(azureDevOpsConfig);
+        const testingCapabilitiesTools = new TestingCapabilitiesTools_1.TestingCapabilitiesTools(azureDevOpsConfig);
         console.log('Initialized tools');
         // Create MCP server
         const server = new mcp_js_1.McpServer({
@@ -562,6 +564,169 @@ async function main() {
             comment: zod_1.z.string().optional().describe("Comment for the merge commit")
         }, async (params, extra) => {
             const result = await gitTools.mergePullRequest(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        // Register Testing Capabilities Tools
+        server.tool("runAutomatedTests", "Execute automated test suites", {
+            testSuiteId: zod_1.z.number().optional().describe("ID of the test suite to run"),
+            testPlanId: zod_1.z.number().optional().describe("ID of the test plan to run"),
+            testEnvironment: zod_1.z.string().optional().describe("Environment to run tests in"),
+            parallelExecution: zod_1.z.boolean().optional().describe("Whether to run tests in parallel")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.runAutomatedTests(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("getTestAutomationStatus", "Check status of automated test execution", {
+            testRunId: zod_1.z.number().describe("ID of the test run to check status for")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.getTestAutomationStatus(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("configureTestAgents", "Configure and manage test agents", {
+            agentName: zod_1.z.string().describe("Name of the test agent to configure"),
+            capabilities: zod_1.z.record(zod_1.z.any()).optional().describe("Capabilities to set for the agent"),
+            enabled: zod_1.z.boolean().optional().describe("Whether the agent should be enabled")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.configureTestAgents(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("createTestDataGenerator", "Generate test data for automated tests", {
+            name: zod_1.z.string().describe("Name of the test data generator"),
+            dataSchema: zod_1.z.record(zod_1.z.any()).describe("Schema for the test data to generate"),
+            recordCount: zod_1.z.number().optional().describe("Number of records to generate")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.createTestDataGenerator(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("manageTestEnvironments", "Manage test environments for different test types", {
+            environmentName: zod_1.z.string().describe("Name of the test environment"),
+            action: zod_1.z.enum(['create', 'update', 'delete']).describe("Action to perform"),
+            properties: zod_1.z.record(zod_1.z.any()).optional().describe("Properties for the environment")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.manageTestEnvironments(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("getTestFlakiness", "Analyze and report on test flakiness", {
+            testId: zod_1.z.number().optional().describe("ID of a specific test to analyze"),
+            testRunIds: zod_1.z.array(zod_1.z.number()).optional().describe("Specific test runs to analyze"),
+            timeRange: zod_1.z.string().optional().describe("Time range for analysis (e.g., '30d')")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.getTestFlakiness(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("getTestGapAnalysis", "Identify gaps in test coverage", {
+            areaPath: zod_1.z.string().optional().describe("Area path to analyze"),
+            codeChangesOnly: zod_1.z.boolean().optional().describe("Only analyze recent code changes")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.getTestGapAnalysis(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("runTestImpactAnalysis", "Determine which tests to run based on code changes", {
+            buildId: zod_1.z.number().describe("ID of the build to analyze"),
+            changedFiles: zod_1.z.array(zod_1.z.string()).optional().describe("List of changed files")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.runTestImpactAnalysis(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("getTestHealthDashboard", "View overall test health metrics", {
+            timeRange: zod_1.z.string().optional().describe("Time range for metrics (e.g., '90d')"),
+            includeTrends: zod_1.z.boolean().optional().describe("Include trend data")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.getTestHealthDashboard(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("runTestOptimization", "Optimize test suite execution for faster feedback", {
+            testPlanId: zod_1.z.number().describe("ID of the test plan to optimize"),
+            optimizationGoal: zod_1.z.enum(['time', 'coverage', 'reliability']).describe("Optimization goal")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.runTestOptimization(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("createExploratorySessions", "Create new exploratory testing sessions", {
+            title: zod_1.z.string().describe("Title of the exploratory session"),
+            description: zod_1.z.string().optional().describe("Description of the session"),
+            areaPath: zod_1.z.string().optional().describe("Area path for the session")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.createExploratorySessions(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("recordExploratoryTestResults", "Record findings during exploratory testing", {
+            sessionId: zod_1.z.number().describe("ID of the exploratory session"),
+            findings: zod_1.z.array(zod_1.z.string()).describe("List of findings to record"),
+            attachments: zod_1.z.array(zod_1.z.any()).optional().describe("Attachments for the findings")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.recordExploratoryTestResults(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("convertFindingsToWorkItems", "Convert exploratory test findings to work items", {
+            sessionId: zod_1.z.number().describe("ID of the exploratory session"),
+            findingIds: zod_1.z.array(zod_1.z.number()).describe("IDs of findings to convert"),
+            workItemType: zod_1.z.string().optional().describe("Type of work item to create")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.convertFindingsToWorkItems(params);
+            return {
+                content: result.content,
+                rawData: result.rawData,
+                isError: result.isError
+            };
+        });
+        server.tool("getExploratoryTestStatistics", "Get statistics on exploratory testing activities", {
+            timeRange: zod_1.z.string().optional().describe("Time range for statistics (e.g., '90d')"),
+            userId: zod_1.z.string().optional().describe("Filter by specific user")
+        }, async (params, extra) => {
+            const result = await testingCapabilitiesTools.getExploratoryTestStatistics(params);
             return {
                 content: result.content,
                 rawData: result.rawData,

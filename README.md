@@ -1,4 +1,5 @@
 # Azure DevOps MCP Integration
+[![smithery badge](https://smithery.ai/badge/@RyanCardin15/azuredevops-mcp)](https://smithery.ai/server/@RyanCardin15/azuredevops-mcp)
 
 A powerful integration for Azure DevOps that provides seamless access to work items, repositories, projects, boards, and sprints through the Model Context Protocol (MCP) server.
 
@@ -64,6 +65,14 @@ The integration is organized into four main tool categories:
 - Merge pull requests
 
 ## Installation
+
+### Installing via Smithery
+
+To install azuredevops-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@RyanCardin15/azuredevops-mcp):
+
+```bash
+npx -y @smithery/cli install @RyanCardin15/azuredevops-mcp --client claude
+```
 
 ### Prerequisites
 - Node.js (v16 or later)

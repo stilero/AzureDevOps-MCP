@@ -7,6 +7,7 @@ import { ProjectTools } from './Tools/ProjectTools';
 import { GitTools } from './Tools/GitTools';
 import { TestingCapabilitiesTools } from './Tools/TestingCapabilitiesTools';
 import { DevSecOpsTools } from './Tools/DevSecOpsTools';
+import { ArtifactManagementTools } from './Tools/ArtifactManagementTools';
 import { z } from 'zod';
 
 async function main() {
@@ -25,6 +26,7 @@ async function main() {
     const gitTools = new GitTools(azureDevOpsConfig);
     const testingCapabilitiesTools = new TestingCapabilitiesTools(azureDevOpsConfig);
     const devSecOpsTools = new DevSecOpsTools(azureDevOpsConfig);
+    const artifactManagementTools = new ArtifactManagementTools(azureDevOpsConfig);
     
     console.log('Initialized tools');
 
@@ -1242,6 +1244,218 @@ async function main() {
       },
       async (params, extra) => {
         const result = await devSecOpsTools.vaultIntegration(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    // Register ArtifactManagement Tools
+    server.tool("listArtifactFeeds", 
+      "List artifact feeds in the organization",
+      {
+        feedType: z.enum(['npm', 'nuget', 'maven', 'python', 'universal', 'all']).optional().describe("Type of feeds to list"),
+        includeDeleted: z.boolean().optional().describe("Include deleted feeds")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.listArtifactFeeds(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getPackageVersions", 
+      "Get versions of a package in a feed",
+      {
+        feedId: z.string().describe("ID of the feed"),
+        packageName: z.string().describe("Name of the package"),
+        top: z.number().optional().describe("Maximum number of versions to return")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.getPackageVersions(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("publishPackage", 
+      "Publish a package to a feed",
+      {
+        feedId: z.string().describe("ID of the feed to publish to"),
+        packageType: z.enum(['npm', 'nuget', 'maven', 'python', 'universal']).describe("Type of package"),
+        packagePath: z.string().describe("Path to the package file"),
+        packageVersion: z.string().optional().describe("Version of the package")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.publishPackage(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("promotePackage", 
+      "Promote a package version between views",
+      {
+        feedId: z.string().describe("ID of the feed"),
+        packageName: z.string().describe("Name of the package"),
+        packageVersion: z.string().describe("Version of the package"),
+        sourceView: z.string().describe("Source view (e.g., 'prerelease')"),
+        targetView: z.string().describe("Target view (e.g., 'release')")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.promotePackage(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("deletePackageVersion", 
+      "Delete a version of a package",
+      {
+        feedId: z.string().describe("ID of the feed"),
+        packageName: z.string().describe("Name of the package"),
+        packageVersion: z.string().describe("Version of the package to delete"),
+        permanent: z.boolean().optional().describe("Permanently delete the package version")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.deletePackageVersion(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("listContainerImages", 
+      "List container images in a repository",
+      {
+        repositoryName: z.string().optional().describe("Name of the container repository"),
+        includeManifests: z.boolean().optional().describe("Include image manifests"),
+        includeDeleted: z.boolean().optional().describe("Include deleted images")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.listContainerImages(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getContainerImageTags", 
+      "Get tags for a container image",
+      {
+        repositoryName: z.string().describe("Name of the container repository"),
+        imageName: z.string().describe("Name of the container image"),
+        top: z.number().optional().describe("Maximum number of tags to return")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.getContainerImageTags(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("scanContainerImage", 
+      "Scan a container image for vulnerabilities and compliance issues",
+      {
+        repositoryName: z.string().describe("Name of the container repository"),
+        imageTag: z.string().describe("Tag of the container image to scan"),
+        scanType: z.enum(['vulnerability', 'compliance', 'both']).optional().describe("Type of scan to perform")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.scanContainerImage(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("manageContainerPolicies", 
+      "Manage policies for container repositories",
+      {
+        repositoryName: z.string().describe("Name of the container repository"),
+        policyType: z.enum(['retention', 'security', 'access']).describe("Type of policy to manage"),
+        action: z.enum(['get', 'set', 'delete']).describe("Action to perform on the policy"),
+        policySettings: z.record(z.any()).optional().describe("Settings for the policy when setting")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.manageContainerPolicies(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("manageUniversalPackages", 
+      "Manage universal packages",
+      {
+        packageName: z.string().describe("Name of the universal package"),
+        action: z.enum(['download', 'upload', 'delete']).describe("Action to perform"),
+        packagePath: z.string().optional().describe("Path for package upload or download"),
+        packageVersion: z.string().optional().describe("Version of the package")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.manageUniversalPackages(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("createPackageDownloadReport", 
+      "Create reports on package downloads",
+      {
+        feedId: z.string().optional().describe("ID of the feed"),
+        packageName: z.string().optional().describe("Name of the package"),
+        timeRange: z.string().optional().describe("Time range for the report (e.g., '30d')"),
+        format: z.enum(['csv', 'json']).optional().describe("Format of the report")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.createPackageDownloadReport(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("checkPackageDependencies", 
+      "Check package dependencies and vulnerabilities",
+      {
+        packageName: z.string().describe("Name of the package to check"),
+        packageVersion: z.string().optional().describe("Version of the package"),
+        includeTransitive: z.boolean().optional().describe("Include transitive dependencies"),
+        checkVulnerabilities: z.boolean().optional().describe("Check for known vulnerabilities")
+      },
+      async (params, extra) => {
+        const result = await artifactManagementTools.checkPackageDependencies(params);
         return {
           content: result.content,
           rawData: result.rawData,

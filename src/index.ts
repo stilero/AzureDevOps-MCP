@@ -8,6 +8,7 @@ import { GitTools } from './Tools/GitTools';
 import { TestingCapabilitiesTools } from './Tools/TestingCapabilitiesTools';
 import { DevSecOpsTools } from './Tools/DevSecOpsTools';
 import { ArtifactManagementTools } from './Tools/ArtifactManagementTools';
+import { AIAssistedDevelopmentTools } from './Tools/AIAssistedDevelopmentTools';
 import { z } from 'zod';
 
 async function main() {
@@ -27,6 +28,7 @@ async function main() {
     const testingCapabilitiesTools = new TestingCapabilitiesTools(azureDevOpsConfig);
     const devSecOpsTools = new DevSecOpsTools(azureDevOpsConfig);
     const artifactManagementTools = new ArtifactManagementTools(azureDevOpsConfig);
+    const aiAssistedDevelopmentTools = new AIAssistedDevelopmentTools(azureDevOpsConfig);
     
     console.log('Initialized tools');
 
@@ -1464,6 +1466,205 @@ async function main() {
       }
     );
     
+    // AI Assisted Development Tools
+    server.tool("getAICodeReview", 
+      "Get AI-based code review suggestions",
+      {
+        pullRequestId: z.number().optional().describe("ID of the pull request to review"),
+        repositoryId: z.string().optional().describe("ID of the repository"),
+        commitId: z.string().optional().describe("ID of the commit to review"),
+        filePath: z.string().optional().describe("Path to the file to review")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.getAICodeReview(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("suggestCodeOptimization", 
+      "Suggest code optimizations using AI",
+      {
+        repositoryId: z.string().describe("ID of the repository"),
+        filePath: z.string().describe("Path to the file to optimize"),
+        lineStart: z.number().optional().describe("Starting line number"),
+        lineEnd: z.number().optional().describe("Ending line number"),
+        optimizationType: z.enum(['performance', 'memory', 'readability', 'all']).optional().describe("Type of optimization to focus on")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.suggestCodeOptimization(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("identifyCodeSmells", 
+      "Identify potential code smells and anti-patterns",
+      {
+        repositoryId: z.string().describe("ID of the repository"),
+        branch: z.string().optional().describe("Branch to analyze"),
+        filePath: z.string().optional().describe("Path to the file to analyze"),
+        severity: z.enum(['high', 'medium', 'low', 'all']).optional().describe("Severity level to filter by")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.identifyCodeSmells(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("getPredictiveBugAnalysis", 
+      "Predict potential bugs in code changes",
+      {
+        repositoryId: z.string().describe("ID of the repository"),
+        pullRequestId: z.number().optional().describe("ID of the pull request"),
+        branch: z.string().optional().describe("Branch to analyze"),
+        filePath: z.string().optional().describe("Path to the file to analyze")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.getPredictiveBugAnalysis(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("getDeveloperProductivity", 
+      "Measure developer productivity metrics",
+      {
+        userId: z.string().optional().describe("ID of the user"),
+        teamId: z.string().optional().describe("ID of the team"),
+        timeRange: z.string().optional().describe("Time range for analysis (e.g., '30d', '3m')"),
+        includeMetrics: z.array(z.string()).optional().describe("Specific metrics to include")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.getDeveloperProductivity(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("getPredictiveEffortEstimation", 
+      "AI-based effort estimation for work items",
+      {
+        workItemIds: z.array(z.number()).optional().describe("IDs of work items to estimate"),
+        workItemType: z.string().optional().describe("Type of work items to estimate"),
+        areaPath: z.string().optional().describe("Area path to filter work items")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.getPredictiveEffortEstimation(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("getCodeQualityTrends", 
+      "Track code quality trends over time",
+      {
+        repositoryId: z.string().optional().describe("ID of the repository"),
+        branch: z.string().optional().describe("Branch to analyze"),
+        timeRange: z.string().optional().describe("Time range for analysis (e.g., '90d', '6m')"),
+        metrics: z.array(z.string()).optional().describe("Specific metrics to include")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.getCodeQualityTrends(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("suggestWorkItemRefinements", 
+      "Get AI suggestions for work item refinements",
+      {
+        workItemId: z.number().optional().describe("ID of the work item to refine"),
+        workItemType: z.string().optional().describe("Type of work item"),
+        areaPath: z.string().optional().describe("Area path to filter work items")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.suggestWorkItemRefinements(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("suggestAutomationOpportunities", 
+      "Identify opportunities for automation",
+      {
+        projectId: z.string().optional().describe("ID of the project"),
+        scopeType: z.enum(['builds', 'releases', 'tests', 'workitems', 'all']).optional().describe("Type of scope to analyze")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.suggestAutomationOpportunities(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("createIntelligentAlerts", 
+      "Set up intelligent alerts based on patterns",
+      {
+        alertName: z.string().describe("Name of the alert"),
+        alertType: z.enum(['build', 'release', 'test', 'workitem', 'code']).describe("Type of alert to create"),
+        conditions: z.record(z.any()).describe("Conditions for the alert"),
+        actions: z.record(z.any()).optional().describe("Actions to take when the alert triggers")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.createIntelligentAlerts(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("predictBuildFailures", 
+      "Predict potential build failures before they occur",
+      {
+        buildDefinitionId: z.number().describe("ID of the build definition"),
+        lookbackPeriod: z.string().optional().describe("Period to analyze for patterns (e.g., '30d')")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.predictBuildFailures(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
+    server.tool("optimizeTestSelection", 
+      "Intelligently select tests to run based on changes",
+      {
+        buildId: z.number().describe("ID of the build"),
+        changedFiles: z.array(z.string()).optional().describe("List of changed files"),
+        maxTestCount: z.number().optional().describe("Maximum number of tests to select")
+      },
+      async (params, extra) => {
+        const result = await aiAssistedDevelopmentTools.optimizeTestSelection(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+        };
+      }
+    );
+
     console.log(`Registered tools`);
 
     // Create a transport (use stdio for simplicity)

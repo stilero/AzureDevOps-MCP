@@ -6,6 +6,7 @@ import { BoardsSprintsTools } from './Tools/BoardsSprintsTools';
 import { ProjectTools } from './Tools/ProjectTools';
 import { GitTools } from './Tools/GitTools';
 import { TestingCapabilitiesTools } from './Tools/TestingCapabilitiesTools';
+import { DevSecOpsTools } from './Tools/DevSecOpsTools';
 import { z } from 'zod';
 
 async function main() {
@@ -23,6 +24,7 @@ async function main() {
     const projectTools = new ProjectTools(azureDevOpsConfig);
     const gitTools = new GitTools(azureDevOpsConfig);
     const testingCapabilitiesTools = new TestingCapabilitiesTools(azureDevOpsConfig);
+    const devSecOpsTools = new DevSecOpsTools(azureDevOpsConfig);
     
     console.log('Initialized tools');
 
@@ -1024,6 +1026,222 @@ async function main() {
       },
       async (params, extra) => {
         const result = await testingCapabilitiesTools.getExploratoryTestStatistics(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    // Register DevSecOps Tools
+    server.tool("runSecurityScan", 
+      "Run security scans on repositories",
+      {
+        repositoryId: z.string().describe("ID of the repository to scan"),
+        branch: z.string().optional().describe("Branch to scan"),
+        scanType: z.enum(['static', 'dynamic', 'container', 'dependency', 'all']).optional().describe("Type of security scan to run")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.runSecurityScan(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getSecurityScanResults", 
+      "Get results from security scans",
+      {
+        scanId: z.string().describe("ID of the scan to get results for"),
+        severity: z.enum(['critical', 'high', 'medium', 'low', 'all']).optional().describe("Filter results by severity")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.getSecurityScanResults(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("trackSecurityVulnerabilities", 
+      "Track and manage security vulnerabilities",
+      {
+        vulnerabilityId: z.string().optional().describe("ID of a specific vulnerability to track"),
+        status: z.enum(['open', 'in-progress', 'mitigated', 'resolved', 'false-positive']).optional().describe("Filter by vulnerability status"),
+        timeRange: z.string().optional().describe("Time range for tracking (e.g., '90d')")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.trackSecurityVulnerabilities(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("generateSecurityCompliance", 
+      "Generate security compliance reports",
+      {
+        standardType: z.enum(['owasp', 'pci-dss', 'hipaa', 'gdpr', 'iso27001', 'custom']).optional().describe("Compliance standard to report on"),
+        includeEvidence: z.boolean().optional().describe("Include evidence in the report")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.generateSecurityCompliance(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("integrateSarifResults", 
+      "Import and process SARIF format security results",
+      {
+        sarifFilePath: z.string().describe("Path to the SARIF file to import"),
+        createWorkItems: z.boolean().optional().describe("Create work items from findings")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.integrateSarifResults(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("runComplianceChecks", 
+      "Run compliance checks against standards",
+      {
+        complianceStandard: z.string().describe("Compliance standard to check against"),
+        scopeId: z.string().optional().describe("Scope of the compliance check")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.runComplianceChecks(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("getComplianceStatus", 
+      "Get current compliance status",
+      {
+        standardId: z.string().optional().describe("ID of the compliance standard"),
+        includeHistory: z.boolean().optional().describe("Include historical compliance data")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.getComplianceStatus(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("createComplianceReport", 
+      "Create compliance reports for auditing",
+      {
+        standardId: z.string().describe("ID of the compliance standard"),
+        format: z.enum(['pdf', 'html', 'json']).optional().describe("Format of the report")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.createComplianceReport(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("manageSecurityPolicies", 
+      "Manage security policies",
+      {
+        policyName: z.string().describe("Name of the security policy"),
+        action: z.enum(['create', 'update', 'delete', 'get']).describe("Action to perform on the policy"),
+        policyDefinition: z.record(z.any()).optional().describe("Definition of the policy")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.manageSecurityPolicies(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("trackSecurityAwareness", 
+      "Track security awareness and training",
+      {
+        teamId: z.string().optional().describe("ID of the team to track"),
+        trainingId: z.string().optional().describe("ID of specific training to track"),
+        timeRange: z.string().optional().describe("Time range for tracking (e.g., '90d')")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.trackSecurityAwareness(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("rotateSecrets", 
+      "Rotate secrets and credentials",
+      {
+        secretName: z.string().optional().describe("Name of the secret to rotate"),
+        secretType: z.enum(['password', 'token', 'certificate', 'key']).optional().describe("Type of secret to rotate"),
+        force: z.boolean().optional().describe("Force rotation even if not expired")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.rotateSecrets(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("auditSecretUsage", 
+      "Audit usage of secrets across services",
+      {
+        secretName: z.string().optional().describe("Name of the secret to audit"),
+        timeRange: z.string().optional().describe("Time range for the audit (e.g., '30d')")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.auditSecretUsage(params);
+        return {
+          content: result.content,
+          rawData: result.rawData,
+          isError: result.isError
+        };
+      }
+    );
+    
+    server.tool("vaultIntegration", 
+      "Integrate with secret vaults",
+      {
+        vaultUrl: z.string().describe("URL of the vault to integrate with"),
+        secretPath: z.string().optional().describe("Path to the secret in the vault"),
+        action: z.enum(['get', 'list', 'set', 'delete']).describe("Action to perform"),
+        secretValue: z.string().optional().describe("Value to set (for 'set' action)")
+      },
+      async (params, extra) => {
+        const result = await devSecOpsTools.vaultIntegration(params);
         return {
           content: result.content,
           rawData: result.rawData,

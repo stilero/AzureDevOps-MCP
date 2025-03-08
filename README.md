@@ -290,3 +290,6 @@ Contributions are welcome! Here's how you can contribute:
 
 Please ensure your code passes linting and includes appropriate tests.
 
+<a href="https://glama.ai/mcp/servers/z7mxfcinp8">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/z7mxfcinp8/badge" />
+</a>

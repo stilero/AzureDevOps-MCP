@@ -7,6 +7,9 @@ A powerful integration for Azure DevOps that provides seamless access to work it
 
 This server provides a convenient API for interacting with Azure DevOps services, enabling AI assistants and other tools to manage work items, code repositories, boards, sprints, and more. Built with the Model Context Protocol, it provides a standardized interface for communicating with Azure DevOps.
 
+## Demo
+![Azure DevOps MCP Demo](AdoMcpDemo.gif)
+
 ## Features
 
 The integration is organized into four main tool categories:

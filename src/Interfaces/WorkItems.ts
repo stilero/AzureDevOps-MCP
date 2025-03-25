@@ -1,5 +1,3 @@
-import { WorkItemQueryParams, RawWorkItemResponse } from './AzureDevOps';
-
 /**
  * Interface for getting a work item by ID
  */

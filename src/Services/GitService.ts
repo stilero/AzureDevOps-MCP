@@ -10,7 +10,6 @@ import {
   BrowseRepositoryParams,
   GetFileContentParams,
   GetCommitHistoryParams,
-  ListPullRequestsParams,
   CreatePullRequestParams,
   GetPullRequestParams,
   GetPullRequestCommentsParams,

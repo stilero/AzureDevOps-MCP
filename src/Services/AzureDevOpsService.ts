@@ -1,6 +1,5 @@
 import * as azdev from 'azure-devops-node-api';
 import { WorkItemTrackingApi } from 'azure-devops-node-api/WorkItemTrackingApi';
-import { QueryHierarchyItem } from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces';
 import { AzureDevOpsConfig, RawWorkItemResponse } from '../Interfaces/AzureDevOps';
 
 export class AzureDevOpsService {

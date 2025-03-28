@@ -19,5 +19,10 @@ RUN npm run build
 # Expose port if required (here assuming port 3000, adjust if needed)
 EXPOSE 3000
 
-# Start the server
-CMD [ "npm", "run", "start" ]
+# Set environment variables
+ENV MCP_MODE=true
+# Logs are silent by default
+# To enable logs, set ENABLE_LOGS=true when running the container
+
+# Start the server directly without npm to avoid extra output
+CMD ["node", "dist/index.js"]

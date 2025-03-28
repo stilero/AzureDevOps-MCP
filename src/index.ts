@@ -1,3 +1,7 @@
+// Set an environment variable to indicate we're in MCP mode
+// This helps prevent console.log from interfering with stdio communication
+process.env.MCP_MODE = 'true';
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { getAzureDevOpsConfig } from './config';
@@ -11,14 +15,27 @@ import { ArtifactManagementTools } from './Tools/ArtifactManagementTools';
 import { AIAssistedDevelopmentTools } from './Tools/AIAssistedDevelopmentTools';
 import { z } from 'zod';
 
+// Custom logging function that is silent by default and can be enabled via environment variable
+function mcpLog(message: string) {
+  // Only log if explicitly enabled via environment variable
+  if (process.env.ENABLE_LOGS === 'true') {
+    // When in MCP mode, logs should go to stderr not stdout
+    if (process.env.MCP_MODE === 'true') {
+      process.stderr.write(`[LOG] ${message}\n`);
+    } else {
+      console.log(message);
+    }
+  }
+}
+
 async function main() {
   try {
     // Log startup info
-    console.log('Starting MCP server for Azure DevOps...');
+    mcpLog('Starting MCP server for Azure DevOps...');
     
     // Load configuration
     const azureDevOpsConfig = getAzureDevOpsConfig();
-    console.log('Successfully loaded Azure DevOps configuration');
+    mcpLog('Successfully loaded Azure DevOps configuration');
     
     // Initialize tools
     const workItemTools = new WorkItemTools(azureDevOpsConfig);
@@ -30,7 +47,7 @@ async function main() {
     const artifactManagementTools = new ArtifactManagementTools(azureDevOpsConfig);
     const aiAssistedDevelopmentTools = new AIAssistedDevelopmentTools(azureDevOpsConfig);
     
-    console.log('Initialized tools');
+    mcpLog('Initialized tools');
 
     // Create MCP server
     const server = new McpServer({
@@ -1665,16 +1682,16 @@ async function main() {
       }
     );
 
-    console.log(`Registered tools`);
+    mcpLog(`Registered tools`);
 
     // Create a transport (use stdio for simplicity)
-    console.log('Creating StdioServerTransport');
+    mcpLog('Creating StdioServerTransport');
     const transport = new StdioServerTransport();
     
     // Connect to the transport and start listening
-    console.log('Connecting to transport...');
+    mcpLog('Connecting to transport...');
     await server.connect(transport);
-    console.log('Connected to transport');
+    mcpLog('Connected to transport');
 
   } catch (error) {
     console.error('Error starting MCP server:', error);
@@ -1684,10 +1701,6 @@ async function main() {
     process.exit(1);
   }
 }
-
-// Set an environment variable to indicate we're in MCP mode
-// This helps prevent console.log from interfering with stdio communication
-process.env.MCP_MODE = 'true';
 
 // Run the server
 main(); 
